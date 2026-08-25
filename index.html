@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101212" />
+    <title>EZ Chat | WebRTC chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-row">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="brand-name">EZ Chat</span>
+          <span class="brand-version">BETA</span>
+        </div>
+
+        <div class="profile-row">
+          <div class="avatar avatar-me" id="my-avatar">Y</div>
+          <div class="profile-copy">
+            <strong id="my-nickname">You</strong>
+            <span class="mono" id="peer-id">ID: local</span>
+          </div>
+          <button
+            class="icon-button"
+            id="edit-nickname"
+            aria-label="Change nickname"
+            title="Change nickname"
+          >
+            ✎
+          </button>
+          <button
+            class="icon-button"
+            id="copy-id"
+            aria-label="Copy your peer ID"
+            title="Copy peer ID"
+          >
+            ⧉
+          </button>
+        </div>
+
+        <div class="sidebar-heading">
+          <span>Chat rooms</span>
+          <button
+            class="new-room-button"
+            id="new-room"
+            aria-label="Start a new room"
+            title="New room"
+          >
+            +
+          </button>
+        </div>
+        <div class="room-list" id="room-list">
+          <button class="room-item active" data-room="lobby">
+            <div class="avatar avatar-coral">N</div>
+            <div class="room-copy">
+              <strong>Private room</strong
+              ><span id="room-preview">Share the room URL to begin</span>
+            </div>
+            <span class="room-status" id="room-status"></span>
+          </button>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="privacy-note">
+            <span class="lock-icon">⌁</span>
+            <div>
+              <strong>Peer to peer</strong
+              ><span>Messages stay between browsers.</span>
+            </div>
+          </div>
+          <span class="mono build-label">EZ CHAT / 01</span>
+        </div>
+      </aside>
+
+      <main class="chat-panel">
+        <header class="chat-header">
+          <div class="chat-title-wrap">
+            <div class="avatar avatar-coral large">N</div>
+            <div>
+              <div class="eyebrow">DIRECT ROOM</div>
+              <h1 id="chat-title">Private room</h1>
+              <div class="connection-state">
+                <span class="state-dot" id="state-dot"></span
+                ><span id="connection-label">Waiting for a peer</span>
+              </div>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="outline-button" id="setup-button">
+              <span class="button-icon">↗</span> Connect room
+            </button>
+            <button
+              class="icon-button header-icon"
+              id="more-button"
+              aria-label="More options"
+              title="More options"
+            >
+              •••
+            </button>
+          </div>
+        </header>
+
+        <section class="call-stage" id="call-stage" aria-label="Video call">
+          <div class="video-tile remote-tile">
+            <video id="remote-video" autoplay playsinline></video
+            ><span class="video-label" id="remote-video-label">Peer</span
+            ><span class="video-placeholder">Waiting for video</span>
+          </div>
+          <div class="video-tile local-tile">
+            <video id="local-video" autoplay muted playsinline></video
+            ><span class="video-label">You</span>
+          </div>
+          <div class="call-controls">
+            <button
+              class="call-button"
+              id="toggle-mic"
+              aria-label="Enable microphone"
+              title="Enable microphone"
+            >
+              ♩
+            </button>
+            <button
+              class="call-button"
+              id="toggle-camera"
+              aria-label="Enable webcam and microphone"
+              title="Enable webcam and microphone"
+            >
+              ▣
+            </button>
+            <button
+              class="call-button end-call"
+              id="end-call"
+              aria-label="End call"
+              title="End call"
+            >
+              ×
+            </button>
+          </div>
+        </section>
+
+        <section class="messages" id="messages" aria-live="polite">
+          <div class="date-divider"><span>Today</span></div>
+          <div class="empty-state" id="empty-state">
+            <div class="signal-illustration" aria-hidden="true">
+              <span class="signal-line one"></span
+              ><span class="signal-line two"></span
+              ><span class="signal-line three"></span>
+              <div class="signal-core">↔</div>
+            </div>
+            <h2>A quiet channel</h2>
+            <p>
+              Connect directly with another browser to begin a private
+              conversation.
+            </p>
+          </div>
+        </section>
+
+        <div class="typing-row" id="typing-row" aria-live="polite"></div>
+        <form class="composer" id="composer">
+          <button
+            type="button"
+            class="icon-button composer-icon"
+            id="attach-button"
+            aria-label="Attach a file"
+            title="Attach a file"
+          >
+            ＋
+          </button>
+          <input
+            id="message-input"
+            type="text"
+            autocomplete="off"
+            placeholder="Write a message..."
+            aria-label="Message"
+            disabled
+          />
+          <span class="mono shortcut">⌘ ↵</span>
+          <button
+            type="submit"
+            class="send-button"
+            id="send-button"
+            aria-label="Send message"
+            title="Send message"
+            disabled
+          >
+            ↑
+          </button>
+        </form>
+        <div class="composer-hint">
+          <span class="lock-icon">⌁</span> End-to-end between connected peers
+        </div>
+      </main>
+    </div>
+
+    <dialog class="connect-dialog" id="connect-dialog">
+      <form method="dialog" class="dialog-card" id="connect-form">
+        <button class="dialog-close" value="cancel" aria-label="Close">
+          ×
+        </button>
+        <div class="eyebrow">PEER HANDSHAKE</div>
+        <h2>Connect a browser</h2>
+        <p class="dialog-intro">
+          Create or join this room using its unique URL. No password is
+          required.
+        </p>
+        <div class="role-tabs" role="tablist">
+          <button type="button" class="role-tab active" data-role="create">
+            Create room</button
+          ><button type="button" class="role-tab" data-role="join">
+            Join room
+          </button>
+        </div>
+        <div class="setup-step" id="create-room-step">
+          <button type="button" class="primary-button" id="create-room">
+            Create room <span>＋</span>
+          </button>
+        </div>
+        <div class="share-room-step hidden" id="share-room-step">
+          <label>Share this room</label>
+          <div class="share-field">
+            <input id="room-url-output" readonly /><button
+              type="button"
+              class="secondary-button"
+              id="copy-room-url"
+            >
+              Copy URL
+            </button>
+          </div>
+        </div>
+        <div class="setup-step hidden" id="join-room-step">
+          <button type="button" class="primary-button" id="join-room">
+            Join room <span>↗</span>
+          </button>
+        </div>
+        <p class="dialog-error" id="dialog-error" role="alert"></p>
+      </form>
+    </dialog>
+    <dialog class="nickname-dialog" id="nickname-dialog">
+      <form
+        method="dialog"
+        class="dialog-card nickname-card"
+        id="nickname-form"
+      >
+        <button class="dialog-close" value="cancel" aria-label="Close">
+          ×
+        </button>
+        <div class="eyebrow">YOUR PROFILE</div>
+        <h2>Change nickname</h2>
+        <p class="dialog-intro">
+          Choose the name other people will see in this room.
+        </p>
+        <label class="nickname-label" for="nickname-input">Nickname</label>
+        <input
+          class="nickname-input"
+          id="nickname-input"
+          maxlength="24"
+          autocomplete="nickname"
+          placeholder="Your nickname"
+        />
+        <button class="primary-button" id="save-nickname" value="default">
+          Save nickname <span>✓</span>
+        </button>
+      </form>
+    </dialog>
+    <div class="toast" id="toast" role="status"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
